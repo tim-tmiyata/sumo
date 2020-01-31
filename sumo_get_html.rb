@@ -15,11 +15,9 @@ end
 
 doc = Nokogiri::HTML.parse(html, nil, charset)
 
-cont = 0
-doc.xpath('//ul[@class="l-cassetteitem"]').each do |node|
-  p '住宅名:' + node.xpath('//div[@class="cassetteitem_content-title"]')[cont].inner_text
-  p '住所:' + node.xpath('//li[@class="cassetteitem_detail-col1"]')[cont].inner_text
-  p '家賃:' + node.xpath('//span[@class="cassetteitem_other-emphasis ui-text--bold"]')[cont].inner_text
-  p '詳細ページ:' + File.join(base_url, node.xpath('//td[@class="ui-text--midium ui-text--bold"]//a')[cont][:href])
-  cont += 1
+doc.xpath('//ul[@class="l-cassetteitem"]').each.with_index do |node, i|
+  p '住宅名:' + node.xpath('//div[@class="cassetteitem_content-title"]')[i].inner_text
+  p '住所:' + node.xpath('//li[@class="cassetteitem_detail-col1"]')[i].inner_text
+  p '家賃:' + node.xpath('//span[@class="cassetteitem_other-emphasis ui-text--bold"]')[i].inner_text
+  p '詳細ページ:' + File.join(base_url, node.xpath('//td[@class="ui-text--midium ui-text--bold"]//a')[i][:href])
 end
