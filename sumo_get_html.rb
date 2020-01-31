@@ -8,17 +8,31 @@ BASE_URL = 'https://suumo.jp/'
 
 Property = Struct.new('Building', :title, :address, :rent, :url)
 
-doc = open(SEARCH_URL) do |f|
-  Nokogiri::HTML.parse(f.read, nil, f.charset)
+def fetch_search_result
+  open(SEARCH_URL) do |f|
+    Nokogiri::HTML.parse(f.read, nil, f.charset)
+  end
 end
 
-doc.xpath('//ul[@class="l-cassetteitem"]').each.with_index do |node, i|
-  property = Property.new(node.xpath('//div[@class="cassetteitem_content-title"]')[i].inner_text,
-                          node.xpath('//li[@class="cassetteitem_detail-col1"]')[i].inner_text,
-                          node.xpath('//span[@class="cassetteitem_other-emphasis ui-text--bold"]')[i].inner_text,
-                          File.join(BASE_URL, node.xpath('//td[@class="ui-text--midium ui-text--bold"]//a')[i][:href]))
-  p "住宅名: #{property.title}"
-  p "住所: #{property.address}"
-  p "家賃: #{property.rent}"
-  p "詳細ページ: #{property.url}"
+def parse_search_result(page)
+  properties = []
+  page.xpath('//ul[@class="l-cassetteitem"]').each.with_index do |node, i|
+    properties << Property.new(node.xpath('//div[@class="cassetteitem_content-title"]')[i].inner_text,
+                            node.xpath('//li[@class="cassetteitem_detail-col1"]')[i].inner_text,
+                            node.xpath('//span[@class="cassetteitem_other-emphasis ui-text--bold"]')[i].inner_text,
+                            File.join(BASE_URL, node.xpath('//td[@class="ui-text--midium ui-text--bold"]//a')[i][:href]))
+  end
+  properties
 end
+
+def main
+  page = fetch_search_result
+  parse_search_result(page).each do |property|
+    p "住宅名: #{property.title}"
+    p "住所: #{property.address}"
+    p "家賃: #{property.rent}"
+    p "詳細ページ: #{property.url}"
+  end
+end
+
+main
